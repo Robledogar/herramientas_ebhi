@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoja de relevo</title>
+    <style type="text/css">
+
+        .observaciones {
+            font-size: 15px;
+            }
+           .desvio {
+            font-size: 12px;
+            color: darkred; 
+           }
+
+           .desvio-guardia {
+            color: darkred;
+           }
+           .titulo {
+            border-bottom: solid 3px #c03;
+            background: #ddd;
+            padding: 5.5px;
+            text-align: center;
+            margin-right: -1em;
+            margin-left: -1em;
+            margin-top: -2em;
+            height: 4.1em;
+           }
+
+           .cabecera {
+            border-bottom: solid 1px #c03;
+           }
+
+           input:hover, input:focus, textarea:hover, textarea:focus, select:hover, select:focus {
+            outline: solid 1px #c03;
+            list-style-type: none;
+
+           }
+
+           #borrar:hover {
+            background-color: #c03;
+            outline: none;
+            border-radius: 2px;
+            color: #fff;
+           }
+
+           #guardar {
+            margin-right: 10px;
+           }
+
+          
+
+           #guardar:hover, #enviarEmail:hover {
+            background-color: darkgreen;
+            outline: none;
+            border-radius: 2px;
+            color: #fff;
+           }  
+
+           .cajaConfirmacionGuardado {
+            color: darkgreen;
+            margin: 10px auto;
+            width: fit-content;
+            
+           }
+
+           select {
+            cursor: pointer;
+           } 
+
+           #fecha, #guardar, #enviarEmail, #borrar{
+            cursor: pointer;
+           }
+
+           .observaciones {
+            margin-bottom: 5px;
+           }
+
+           #panelista {
+            margin-top: 5px;
+           }
+
+           .custom-tooltip {
+            visibility: hidden;
+            width: 300px;
+    
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the button */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
+            opacity: 0;
+            transition: opacity 0.3s;
+           }
+
+           .custom-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+           }
+
+           #guardar:hover + .custom-tooltip {
+            visibility: visible;
+            opacity: 1;
+           }
+
+    </style>
+
+    <script type="text/javascript">
+        window.onload = inicio;
+let datosGuardados;
+
+function inicio() {
+    document.getElementById("guardar").onclick = guardarEnLocalStorage;
+    document.getElementById("borrar").onclick = borrarLocalStorage;
+
+    // Add event listeners to all input, select, and textarea elements
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(element => {
+        if (element.tagName === 'INPUT' && (element.type === 'text' || element.type === 'date')) {
+            element.oninput = guardarEnLocalStorage;
+        } else if (element.tagName === 'TEXTAREA') {
+            element.oninput = guardarEnLocalStorage;
+        } else if (element.tagName === 'SELECT') {
+            element.onchange = guardarEnLocalStorage;
+        }
+    });
+
+    // Custom tooltip logic
+    const guardarButton = document.getElementById('guardar');
+    const tooltip = document.getElementById('tooltipGuardar');
+
+    if (guardarButton && tooltip) {
+        guardarButton.addEventListener('mouseover', () => {
+            tooltip.style.visibility = 'visible';
+            tooltip.style.opacity = '1';
+        });
+
+        guardarButton.addEventListener('mouseout', () => {
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.opacity = '0';
+        });
+    }
+
+    datosGuardados = localStorage.getItem("DatosGuardados")
+    if (datosGuardados == 1) {
+        document.getElementById("turno").value = localStorage.getItem("Turno");
+        document.getElementById("turnoEntrante").value = localStorage.getItem("TurnoEntrante");
+        document.getElementById("fecha").value = localStorage.getItem("Fecha");
+
+        document.getElementById("cintasExtractora1Dc1").value = localStorage.getItem("CintasExtractora1Dc1");
+        document.getElementById("faseExtractora1Dc1").value = localStorage.getItem("FaseExtractora1Dc1");
+        document.getElementById("destinoExtractora1Dc1").value = localStorage.getItem("DestinoExtractora1Dc1");
+        document.getElementById("materialDc1").value = localStorage.getItem("MaterialDc1");
+        document.getElementById("bodegaDc1").value = localStorage.getItem("BodegaDc1");
+        document.getElementById("cintasExtractora2Dc1").value = localStorage.getItem("CintasExtractora2Dc1");
+        document.getElementById("faseExtractora2Dc1").value = localStorage.getItem("FaseExtractora2Dc1");
+        document.getElementById("destinoExtractora2Dc1").value = localStorage.getItem("DestinoExtractora2Dc1");
+
+        document.getElementById("cintasGr1").value = localStorage.getItem("CintasGr1");
+        document.getElementById("faseGr1").value = localStorage.getItem("FaseGr1");
+        document.getElementById("destinoGr1").value = localStorage.getItem("DestinoGr1");
+        document.getElementById("materialGr1").value = localStorage.getItem("MaterialGr1");
+        document.getElementById("bodegaGr1").value = localStorage.getItem("BodegaGr1");
+
+        document.getElementById("cintasExtractora1Dc3").value = localStorage.getItem("CintasExtractora1Dc3");
+        document.getElementById("faseExtractora1Dc3").value = localStorage.getItem("FaseExtractora1Dc3");
+        document.getElementById("destinoExtractora1Dc3").value = localStorage.getItem("DestinoExtractora1Dc3");
+        document.getElementById("materialDc3").value = localStorage.getItem("MaterialDc3");
+        document.getElementById("bodegaDc3").value = localStorage.getItem("BodegaDc3");
+        document.getElementById("cintasExtractora2Dc3").value = localStorage.getItem("CintasExtractora2Dc3");
+        document.getElementById("faseExtractora2Dc3").value = localStorage.getItem("FaseExtractora2Dc3");
+        document.getElementById("destinoExtractora2Dc3").value = localStorage.getItem("DestinoExtractora2Dc3");
+
+        document.getElementById("cintasMc1").value = localStorage.getItem("CintasMc1");
+        document.getElementById("faseMc1").value = localStorage.getItem("FaseMc1");
+        document.getElementById("destinoMc1").value = localStorage.getItem("DestinoMc1");
+        document.getElementById("materialMc1").value = localStorage.getItem("MaterialMc1");
+        document.getElementById("escalaMc1").value = localStorage.getItem("EscalaMc1");
+
+        document.getElementById("cintasMc2").value = localStorage.getItem("CintasMc2");
+        document.getElementById("faseMc2").value = localStorage.getItem("FaseMc2");
+        document.getElementById("destinoMc2").value = localStorage.getItem("DestinoMc2");
+        document.getElementById("materialMc2").value = localStorage.getItem("MaterialMc2");
+        document.getElementById("escalaMc2").value = localStorage.getItem("EscalaMc2");
+
+        document.getElementById("cintasMc3").value = localStorage.getItem("CintasMc3");
+        document.getElementById("faseMc3").value = localStorage.getItem("FaseMc3");
+        document.getElementById("destinoMc3").value = localStorage.getItem("DestinoMc3");
+        document.getElementById("materialMc3").value = localStorage.getItem("MaterialMc3");
+        document.getElementById("escalaMc3").value = localStorage.getItem("EscalaMc3");
+
+        document.getElementById("observaciones").value = localStorage.getItem("Observaciones");
+        document.getElementById("telefono").value = localStorage.getItem("Telefono");
+        document.getElementById("panelista").value = localStorage.getItem("Panelista");
+    }
+}
+
+
+function guardarEnLocalStorage() {
+    cajaConfirmacionGuardado = document.querySelector('.cajaConfirmacionGuardado');
+    datosGuardados = 1;
+    localStorage.setItem("DatosGuardados", datosGuardados);
+
+    let turno = document.getElementById("turno").value;
+    localStorage.setItem("Turno",turno);
+
+    let turnoEntrante = document.getElementById("turnoEntrante").value;
+    localStorage.setItem("TurnoEntrante",turnoEntrante);
+
+    let fecha = document.getElementById("fecha").value;
+    localStorage.setItem("Fecha",fecha);
+
+
+    let cintasExtractora1Dc1 = document.getElementById("cintasExtractora1Dc1").value;
+    localStorage.setItem("CintasExtractora1Dc1",cintasExtractora1Dc1);
+
+    let faseExtractora1Dc1 = document.getElementById("faseExtractora1Dc1").value;
+    localStorage.setItem("FaseExtractora1Dc1",faseExtractora1Dc1);
+
+    let destinoExtractora1Dc1 = document.getElementById("destinoExtractora1Dc1").value;
+    localStorage.setItem("DestinoExtractora1Dc1",destinoExtractora1Dc1);
+
+    let materialDc1 = document.getElementById("materialDc1").value;
+    localStorage.setItem("MaterialDc1",materialDc1);
+
+    let bodegaDc1 = document.getElementById("bodegaDc1").value;
+    localStorage.setItem("BodegaDc1",bodegaDc1);
+
+    let cintasExtractora2Dc1 = document.getElementById("cintasExtractora2Dc1").value;
+    localStorage.setItem("CintasExtractora2Dc1",cintasExtractora2Dc1);
+
+    let faseExtractora2Dc1 = document.getElementById("faseExtractora2Dc1").value;
+    localStorage.setItem("FaseExtractora2Dc1",faseExtractora2Dc1);
+
+    let destinoExtractora2Dc1 = document.getElementById("destinoExtractora2Dc1").value;
+    localStorage.setItem("DestinoExtractora2Dc1",destinoExtractora2Dc1);
+
+
+    let cintasGr1 = document.getElementById("cintasGr1").value;
+    localStorage.setItem("CintasGr1",cintasGr1);
+
+    let faseGr1 = document.getElementById("faseGr1").value;
+    localStorage.setItem("FaseGr1",faseGr1);
+
+    let destinoGr1 = document.getElementById("destinoGr1").value;
+    localStorage.setItem("DestinoGr1",destinoGr1);
+
+    let materialGr1 = document.getElementById("materialGr1").value;
+    localStorage.setItem("MaterialGr1",materialGr1);
+
+    let bodegaGr1 = document.getElementById("bodegaGr1").value;
+    localStorage.setItem("BodegaGr1",bodegaGr1);
+
+
+    let cintasExtractora1Dc3 = document.getElementById("cintasExtractora1Dc3").value;
+    localStorage.setItem("CintasExtractora1Dc3",cintasExtractora1Dc3);
+
+    let faseExtractora1Dc3 = document.getElementById("faseExtractora1Dc3").value;
+    localStorage.setItem("FaseExtractora1Dc3",faseExtractora1Dc3);
+
+    let destinoExtractora1Dc3 = document.getElementById("destinoExtractora1Dc3").value;
+    localStorage.setItem("DestinoExtractora1Dc3",destinoExtractora1Dc3);
+
+    let materialDc3 = document.getElementById("materialDc3").value;
+    localStorage.setItem("MaterialDc3",materialDc3);
+
+    let bodegaDc3 = document.getElementById("bodegaDc3").value;
+    localStorage.setItem("BodegaDc3",bodegaDc3);
+
+    let cintasExtractora2Dc3 = document.getElementById("cintasExtractora2Dc3").value;
+    localStorage.setItem("CintasExtractora2Dc3",cintasExtractora2Dc3);
+
+    let faseExtractora2Dc3 = document.getElementById("faseExtractora2Dc3").value;
+    localStorage.setItem("FaseExtractora2Dc3",faseExtractora2Dc3);
+
+    let destinoExtractora2Dc3 = document.getElementById("destinoExtractora2Dc3").value;
+    localStorage.setItem("DestinoExtractora2Dc3",destinoExtractora2Dc3);
+
+
+    let cintasMc1 = document.getElementById("cintasMc1").value;
+    localStorage.setItem("CintasMc1",cintasMc1);
+
+    let faseMc1 = document.getElementById("faseMc1").value;
+    localStorage.setItem("FaseMc1",faseMc1);
+
+    let destinoMc1 = document.getElementById("destinoMc1").value;
+    localStorage.setItem("DestinoMc1",destinoMc1);
+
+    let materialMc1 = document.getElementById("materialMc1").value;
+    localStorage.setItem("MaterialMc1",materialMc1);
+
+    let escalaMc1 = document.getElementById("escalaMc1").value;
+    localStorage.setItem("EscalaMc1",escalaMc1);
+
+
+    let cintasMc2 = document.getElementById("cintasMc2").value;
+    localStorage.setItem("CintasMc2",cintasMc2);
+
+    let faseMc2 = document.getElementById("faseMc2").value;
+    localStorage.setItem("FaseMc2",faseMc2);
+
+    let destinoMc2 = document.getElementById("destinoMc2").value;
+    localStorage.setItem("DestinoMc2",destinoMc2);
+
+    let materialMc2 = document.getElementById("materialMc2").value;
+    localStorage.setItem("MaterialMc2",materialMc2);
+
+    let escalaMc2 = document.getElementById("escalaMc2").value;
+    localStorage.setItem("EscalaMc2",escalaMc2);
+
+
+    let cintasMc3 = document.getElementById("cintasMc3").value;
+    localStorage.setItem("CintasMc3",cintasMc3);
+
+    let faseMc3 = document.getElementById("faseMc3").value;
+    localStorage.setItem("FaseMc3",faseMc3);
+
+    let destinoMc3 = document.getElementById("destinoMc3").value;
+    localStorage.setItem("DestinoMc3",destinoMc3);
+
+    let materialMc3 = document.getElementById("materialMc3").value;
+    localStorage.setItem("MaterialMc3",materialMc3);
+
+    let escalaMc3 = document.getElementById("escalaMc3").value;
+    localStorage.setItem("EscalaMc3",escalaMc3);
+
+
+    let observaciones = document.getElementById("observaciones").value;
+    localStorage.setItem("Observaciones",observaciones);
+
+    let telefono = document.getElementById("telefono").value;
+    localStorage.setItem("Telefono",telefono);
+
+    let panelista = document.getElementById("panelista").value;
+    localStorage.setItem("Panelista",panelista);
+
+
+    setTimeout(() => {
+        cajaConfirmacionGuardado.textContent = 'Guardando datos...';
+    },500)
+
+    setTimeout(() => {
+        cajaConfirmacionGuardado.textContent = 'Datos guardados';
+    },2000)
+
+    setTimeout(() => {
+        cajaConfirmacionGuardado.textContent = '';
+    }, 4000);
+
+
+}
+
+
+function borrarLocalStorage() {
+    datosGuardados = 0;
+
+    localStorage.setItem("DatosGuardados", datosGuardados);
+    localStorage.removeItem("DatosGuardados");
+
+    localStorage.removeItem("Turno");
+    localStorage.removeItem("TurnoEntrante");
+    localStorage.removeItem("Fecha");
+
+    localStorage.removeItem("CintasExtractora1Dc1");
+    localStorage.removeItem("FaseExtractora1Dc1");
+    localStorage.removeItem("DestinoExtractora1Dc1");
+    localStorage.removeItem("MaterialDc1");
+    localStorage.removeItem("BodegaDc1");
+    localStorage.removeItem("CintasExtractora2Dc1");
+    localStorage.removeItem("FaseExtractora2Dc1");
+    localStorage.removeItem("DestinoExtractora2Dc1");
+
+    localStorage.removeItem("CintasGr1");
+    localStorage.removeItem("FaseGr1");
+    localStorage.removeItem("DestinoGr1");
+    localStorage.removeItem("MaterialGr1");
+    localStorage.removeItem("BodegaGr1");
+
+    localStorage.removeItem("CintasExtractora1Dc3");
+    localStorage.removeItem("FaseExtractora1Dc3");
+    localStorage.removeItem("DestinoExtractora1Dc3");
+    localStorage.removeItem("MaterialDc3");
+    localStorage.removeItem("BodegaDc3");
+    localStorage.removeItem("CintasExtractora2Dc3");
+    localStorage.removeItem("FaseExtractora2Dc3");
+    localStorage.removeItem("DestinoExtractora2Dc3");
+
+    localStorage.removeItem("CintasMc1");
+    localStorage.removeItem("FaseMc1");
+    localStorage.removeItem("DestinoMc1");
+    localStorage.removeItem("MaterialMc1");
+    localStorage.removeItem("EscalaMc1");
+
+    localStorage.removeItem("CintasMc2");
+    localStorage.removeItem("FaseMc2");
+    localStorage.removeItem("DestinoMc2");
+    localStorage.removeItem("MaterialMc2");
+    localStorage.removeItem("EscalaMc2");
+
+    localStorage.removeItem("CintasMc3");
+    localStorage.removeItem("FaseMc3");
+    localStorage.removeItem("DestinoMc3");
+    localStorage.removeItem("MaterialMc3");
+    localStorage.removeItem("EscalaMc3");
+
+    localStorage.removeItem("Observaciones");
+    localStorage.removeItem("Telefono");
+    localStorage.removeItem("Panelista");
+
+
+}
+    </script>
+
+</head>
+
+
+<body>
+    <div class="titulo">
+        <h1>📋 HOJA DE RELEVO</h1>
+    </div>
+    <br>
+   
+<center>
+
+        <form action="mailto:panelista@ebhi.es;?subject=Hoja de relevo" method="post" enctype="text/plain">
+            <fieldset>
+                    <legend>Datos del turno</legend>
+                    <b>TURNO DE</b>
+                <select name="Turno" id="turno">
+                    <option>Seleccionar...</option>
+                    <option>06:00 a 14:00</option>
+                    <option>14:00 a 22:00</option>
+                    <option>22:00 a 06:00</option>
+                </select>
+                    <b>&nbsp;&nbsp;&nbsp;AL DE</b>
+                <select id="turnoEntrante">
+                    <option>Seleccionar...</option>
+                    <option>6:00 a 14:00</option>
+                    <option>14:00 a 22:00</option>
+                    <option>22:00 a 6:00</option>
+                </select>
+                    <b>&nbsp;&nbsp;&nbsp;DEL DIA</b>
+                    <input type="date" name="Fecha" id="fecha">
+            </fieldset>
+    
+</center>
+    <br>
+<center>
+    
+        <fieldset>
+            <legend>Operaciones de descarga</legend>
+    <table width="100%" >
+        <tr bgcolor="#dddddd">
+            <td align="center" width="10%" class="cabecera"><b>Origen</b></td>
+            <td align="center" width="10%" class="cabecera"><b>Extractora</b></td>
+            <td align="center" width="35%" class="cabecera"><b>Cintas</b></td>
+            <td align="center" width="10%" class="cabecera"><b>Fase</b></td>
+            <td align="center" width="10%" class="cabecera"><b>Destino</b></td>
+            <td align="center" width="15%" class="cabecera"><b>Material</b></td>
+            <td align="center" width="10%" class="cabecera"><b>Bodega</b></td>
+        </tr>
+
+        <tr bgcolor="#eee">
+            <td align="center" rowspan="2"><b>DC1</b></td>
+            <td align="center"><small>CE1</small></td>
+            <td><center><input type="text" name="Cintas extractora1 del Dc1" size="34%" id="cintasExtractora1Dc1"></center></td>
+            <td><center>
+                        <select name="Fase extractora1 del Dc1" id="faseExtractora1Dc1">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+            </td>
+            <td><center>
+                        <select name="Destino extractora1 del Dc1" id="destinoExtractora1Dc1">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Mc1</option>
+                            <option>Mc2</option>
+                            <option>Mc3</option>
+                            <option>B23</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+            <td rowspan="2"><center><input type="text" name="Material del Dc1" size="13%" id="materialDc1"></center></td>
+            <td rowspan="2"><center>
+                        <select name="Bodega del Dc1" id="bodegaDc1">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>F</option>
+                        </select></center>
+            </td>
+
+        <tr bgcolor="#eee">
+            <td align="center"><small>CE2</small></td>
+            <td><center><input type="text" name="Cintas extractora2 del Dc1" size="34%" id="cintasExtractora2Dc1"></center></td>
+            <td><center>
+                        <select name="Fase extractora2 del Dc1" id="faseExtractora2Dc1">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+            </td>
+            <td><center>
+                        <select name="Destino extractora2 del Dc1" id="destinoExtractora2Dc1">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Mc1</option>
+                            <option>Mc2</option>
+                            <option>Mc3</option>
+                            <option>B23</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+        </tr>
+
+        <tr bgcolor="#eee">
+            <td align="center"><b>GR1</b></td>
+            <td align="center"><b></b></td>
+            <td><center><input type="text" name="Cintas de la GR1" size="34%" id="cintasGr1"></center></td>
+            <td><center>
+                        <select name="Fase de la GR1" id="faseGr1">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+            </td>
+            <td><center>
+                        <select name="Destino de la GR1" id="destinoGr1">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Mc1</option>
+                            <option>Mc2</option>
+                            <option>Mc3</option>
+                            <option>B23</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+            <td><center><input type="text" name="Material de la GR1" size="13%" id="materialGr1"></center></td>
+            <td><center>
+                        <select name="Bodega de la GR1" id="bodegaGr1">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>F</option>
+                        </select></center>
+            </td>
+
+        <tr bgcolor="#eee">
+            <td align="center" rowspan="2"><b>DC3</b></td>
+            <td align="center"><small>CE1</small></td>
+            <td><center><input type="text" name="Cintas extractora1 del Dc3" size="34%" id="cintasExtractora1Dc3"></center></td>
+            <td><center>
+                        <select name="Fase extractora1 del Dc3" id="faseExtractora1Dc3">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+            </td>
+            <td><center>
+                        <select name="Destino extractora1 del Dc3" id="destinoExtractora1Dc3">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Mc1</option>
+                            <option>Mc2</option>
+                            <option>Mc3</option>
+                            <option>B23</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+            <td rowspan="2"><center><input type="text" name="Material del Dc3" size="13%" id="materialDc3"></center></td>
+            <td rowspan="2"><center>
+                        <select name="Bodega del Dc3" id="bodegaDc3">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>F</option>
+                        </select></center>
+            </td>
+        </tr>
+
+        <tr bgcolor="#eee">
+            <td align="center"><small>CE2</small></td>
+            <td><center><input type="text" name="Cintas extractora2 del Dc3" size="34%" id="cintasExtractora2Dc3"></center></td>
+            <td><center>
+                        <select name="Fase extractora2 del Dc3" id="faseExtractora2Dc3">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+            </td>
+            <td><center>
+                        <select name="Destino extractora2 del Dc3" id="destinoExtractora2Dc3">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Mc1</option>
+                            <option>Mc2</option>
+                            <option>Mc3</option>
+                            <option>B23</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+        </tr>
+        
+    </table>
+        </fieldset>
+    
+    <br>
+
+    
+        <fieldset>
+                    <legend>Operaciones de levante</legend>
+            <table border="0,5" width="100%">
+                <tr bgcolor="#ddd">
+                    <td align="center" width="15%" class="cabecera"><b>Origen</b></td>
+                    <td align="center" width="35%" class="cabecera"><b>Cintas</b></td>
+                    <td align="center" width="10%" class="cabecera"><b>Fase</b></td>
+                    <td align="center" width="10%" class="cabecera"><b>Destino</b></td>
+                    <td align="center" width="20%" class="cabecera"><b>Material</b></td>
+                    <td align="center" width="10%" class="cabecera"><b>Escala</b></td>
+                </tr>
+
+                <tr bgcolor="#eee">
+                    <td align="center"><b>MC1</b></td>
+                    <td><center><input type="text" name="Cintas de la Mc1" size="35%" id="cintasMc1"></center></td>
+                    <td><center>
+                        <select name="Fase de la Mc1" id="faseMc1">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+                    </td>
+                    <td><center>
+                        <select name="Destino de la MC1" id="destinoMc1">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Mc3</option>
+                            <option>B23</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+                    <td><center><input type="text" name="Material de la Mc1" size="16%" id="materialMc1"></center></td>
+                    <td><center><input type="text" name="Escala de la Mc1" size="7%" id="escalaMc1"></center></td>
+                </tr>
+
+                <tr bgcolor="#eee">
+                    <td align="center"><b>MC2</b></td>
+                    <td><center><input type="text" name="Cintas de la Mc2" size="35%" id="cintasMc2"></center></td>
+                    <td><center>
+                        <select name="Fase de la Mc2" id="faseMc2">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+                    </td>
+                    <td><center>
+                        <select name="Destino de la Mc2" id="destinoMc2">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Mc3</option>
+                            <option>B23</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+                    <td><center><input type="text" name="Material de la Mc2" size="16%" id="materialMc2"></center></td>
+                    <td><center><input type="text" name="Escala de la Mc2" size="7%" id="escalaMc2"></center></td>
+                </tr>
+
+                <tr bgcolor="#eee">
+                    <td align="center"><b>MC3</b></td>
+                    <td><center><input type="text" name="Cintas de la Mc3" size="35%" id="cintasMc3"></center></td>
+                    <td><center>
+                        <select name="Fase de la Mc3" id="faseMc3">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select></center>
+                    </td>
+                    <td><center>
+                        <select name="Destino de la Mc3" id="destinoMc3">
+                            <option></option>
+                            <option>P703</option>
+                            <option>P803</option>
+                            <option>Pc1</option>
+                            <option>Pc2</option>
+                            <option>Silo 1</option>
+                            <option>Silo 2</option>
+                        </select></center>
+            </td>
+                    <td><center><input type="text" name="Material de la Mc3" size="16%" id="materialMc3"></center></td>
+                    <td><center><input type="text" name="Escala de la Mc3" size="7%" id="escalaMc3"></center></td>
+                </tr>
+
+            
+
+
+
+            </table>
+
+                </fieldset>
+    
+                <br>
+
+                <fieldset>
+                    <legend>Observaciones</legend>
+                    <textarea class="observaciones" name="OBSERVACIONES" rows="10" cols="80" id="observaciones">
+                        
+                    </textarea>
+
+                    <div class="cuadro-checks">
+                        <b class="desvio">TELÉFONO FIJO</b>
+                        <select name="Telefono" class="desvio-guardia" id="telefono">
+                            <option>SIN DESVIAR</option>
+                            <option>DESVIADO AL 757</option>
+
+                        </select>
+                    </div>
+                    
+                </fieldset>
+
+    
+                <br>
+                <b>PANELISTA</b><br>
+                    <select name="panelista" id="panelista">
+                        <option>Seleccionar...</option>
+                        <option>Cernuda</option>
+                        <option>Eduardo</option>
+                        <option>Fran</option>
+                        <option>Carlos</option>
+                        <option>Jose Luis</option>
+                        <option>Roberto</option>
+                        <option>Pablo</option>
+                        <option>Raul</option>
+                    </select>
+                    <br><br>
+                    <div style="position: relative; display: inline-block;">
+                        <input id="guardar" type="button" value="Guardar datos">
+                        <span id="tooltipGuardar" class="custom-tooltip">Ya no es necesario utilizar este botón. Ahora los datos se guardan automáticamente mientras se escribe. Para guardar los datos en el email de panelistas, utiliza el botón 'Enviar por Email'</span>
+                    </div>
+                    <input id="enviarEmail" type="submit" value="Enviar por Email">
+                    
+                    <div class="cajaConfirmacionGuardado"></div>
+
+                    <br><br><br>
+
+                    <input id="borrar" type="reset" value="Borrar todos los datos">
+                  
+                    
+            </form>
+
+
+
+  
+</center>
+   
+</body>
+</html>
